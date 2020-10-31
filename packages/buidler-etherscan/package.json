@@ -1,8 +1,8 @@
 {
-  "name": "@nomiclabs/buidler-etherscan",
+  "name": "@powerpool/buidler-etherscan",
   "version": "2.1.0",
   "description": "Buidler plugin for verifying contracts on etherscan",
-  "repository": "github:nomiclabs/buidler",
+  "repository": "github:powerpool-finance/hardhat",
   "homepage": "https://github.com/nomiclabs/buidler/tree/master/packages/buidler-etherscan",
   "author": "Nomic Labs LLC",
   "contributors": [
@@ -38,8 +38,11 @@
   "dependencies": {
     "@ethersproject/abi": "^5.0.2",
     "@ethersproject/address": "^5.0.2",
+    "@openzeppelin/contracts": "^2.5.1",
+    "@types/lodash": "^4.14.164",
     "cbor": "^5.0.2",
     "ethereumjs-abi": "^0.6.8",
+    "lodash": "^4.17.20",
     "node-fetch": "^2.6.0",
     "semver": "^6.3.0"
   },

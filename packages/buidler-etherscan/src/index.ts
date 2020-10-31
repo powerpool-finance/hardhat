@@ -1,6 +1,7 @@
 import { extendConfig, task } from "@nomiclabs/buidler/config";
 import { NomicLabsBuidlerPluginError } from "@nomiclabs/buidler/plugins";
 import { ActionType } from "@nomiclabs/buidler/types";
+import _ from "lodash";
 import path from "path";
 import semver from "semver";
 
@@ -195,6 +196,12 @@ ${nameList}`;
 
   // Ensure the linking information is present in the compiler input;
   compilerInput.settings.libraries = contractInformation.libraryLinks;
+
+  if (config.etherscan.filterByImports) {
+    filterCompilerInput(contractInformation, compilerInput);
+  } else {
+    console.log("All the files will be used for verification");
+  }
   const compilerInputJSON = JSON.stringify(compilerInput);
 
   const solcFullVersion = await getLongVersion(config.solc.version);
@@ -249,6 +256,69 @@ Message: ${verificationStatus.message}`,
     );
   }
 };
+
+function filterCompilerInput(contractInfo: any, compilerInput: any) {
+  const topFileName = getFileName(contractInfo.contractFilename);
+  const importedFileNames = new Set([topFileName]);
+
+  function getFileName(filePath: string) {
+    const split = filePath.split("/");
+    return split[split.length - 1];
+  }
+
+  findImports(
+    topFileName,
+    getSourceContentByName(topFileName, compilerInput.sources)
+  );
+
+  function findImports(contractFilename: string, source: string) {
+    const imports = source.match(/^import.+;$/gm);
+    console.log(">>>Found improts for", contractFilename, ":", imports);
+    if (!imports) {
+      console.log(">>> No further imports for", contractFilename);
+      return;
+    }
+    imports.forEach((i: string) => {
+      // @ts-ignore
+      const fName = i.match(/^.+\/(.+.sol)";$/)[1];
+      if (fName && !importedFileNames.has(fName)) {
+        importedFileNames.add(fName);
+        findImports(
+          fName,
+          getSourceContentByName(fName, compilerInput.sources)
+        );
+      }
+    });
+  }
+
+  function getSourceContentByName(contractName: string, sources: any): string {
+    // @ts-ignore
+    return _.find(
+      _.map(sources, (content, name) => ({ content, name })),
+      ({ name }) => _.endsWith(name, contractName)
+    ).content.content;
+  }
+
+  const toKeep: string[] = [];
+  const toRemove: string[] = [];
+
+  Object.keys(compilerInput.sources).forEach((k) => {
+    if (importedFileNames.has(getFileName(k))) {
+      toKeep.push(k);
+    } else {
+      toRemove.push(k);
+    }
+  });
+
+  console.log("The following source files will be kept:");
+  toKeep.map((f) => console.log(`- ${f}`));
+  console.log("\nAnd the following unimported sources will be removed:");
+  toRemove.map((f) => console.log(`- ${f}`));
+
+  toRemove.forEach((k) => {
+    delete compilerInput.sources[k];
+  });
+}
 
 task("verify", "Verifies contract on etherscan")
   .addPositionalParam(
