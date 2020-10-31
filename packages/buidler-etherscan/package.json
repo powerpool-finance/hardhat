@@ -1,8 +1,11 @@
 {
   "name": "@powerpool/buidler-etherscan",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Buidler plugin for verifying contracts on etherscan",
-  "repository": "github:powerpool-finance/hardhat",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powerpool-finance/hardhat.git"
+  },
   "homepage": "https://github.com/nomiclabs/buidler/tree/master/packages/buidler-etherscan",
   "author": "Nomic Labs LLC",
   "contributors": [
@@ -62,5 +65,11 @@
   },
   "peerDependencies": {
     "@nomiclabs/buidler": "^1.4.3"
+  },
+  "bugs": {
+    "url": "https://github.com/powerpool-finance/hardhat/issues"
+  },
+  "directories": {
+    "test": "test"
   }
 }
