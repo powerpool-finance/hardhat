@@ -273,9 +273,7 @@ function filterCompilerInput(contractInfo: any, compilerInput: any) {
 
   function findImports(contractFilename: string, source: string) {
     const imports = source.match(/^import.+;$/gm);
-    console.log(">>>Found improts for", contractFilename, ":", imports);
     if (!imports) {
-      console.log(">>> No further imports for", contractFilename);
       return;
     }
     imports.forEach((i: string) => {
@@ -295,7 +293,7 @@ function filterCompilerInput(contractInfo: any, compilerInput: any) {
     // @ts-ignore
     return _.find(
       _.map(sources, (content, name) => ({ content, name })),
-      ({ name }) => _.endsWith(name, contractName)
+      ({ name }) => _.endsWith(name, `/${contractName}`)
     ).content.content;
   }
 
